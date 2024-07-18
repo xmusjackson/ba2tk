@@ -265,7 +265,6 @@ EErrorCode Archive::extractFileGeneral(const char *destination, const char *file
   std::string out_name = m_TableNames[file_index];
   std::replace(out_name.begin(), out_name.end(), '\\', '/');
   std::filesystem::path destinationPath(std::string(destination) + "/" + out_name);
-  destinationPath = destinationPath.make_preferred();
 
   // ensure all directories exist
   std::filesystem::create_directories(destinationPath.parent_path());
@@ -317,11 +316,13 @@ EErrorCode Archive::extractAllGeneral(const char *destination) const
   for(BSAULong i = 0; i < m_Files.size(); ++i)
   {
     const FileEntry &file = m_Files[i];
-
-    std::string destinationPath = std::string(destination) + "\\" + m_TableNames[i];
+  
+    std::string out_name = m_TableNames[i];
+    std::replace(out_name.begin(), out_name.end(), '\\', '/');
+    std::filesystem::path destinationPath(std::string(destination) + "/" + out_name);
 
     // ensure all directories exist
-    std::filesystem::create_directories(std::filesystem::path(destinationPath).parent_path());
+    std::filesystem::create_directories(destinationPath.parent_path());
     std::fstream outFile;
     outFile.open(destinationPath.c_str(), fstream::out | fstream::binary);
     if (outFile.is_open()) {

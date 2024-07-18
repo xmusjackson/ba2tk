@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED (VERSION 3.5)
 
 SET(PROJ_AUTHOR NMM2)
 SET(PROJ_ARCH x86)
@@ -21,11 +21,9 @@ SET(ba2tk_HDRS
     dds.h
   )
 
-FIND_PACKAGE(zlib REQUIRED)
+FIND_PACKAGE(ZLIB REQUIRED)
 
-INCLUDE_DIRECTORIES(common
-                    ${ZLIB_INCLUDE_DIRS}
-                    ${ZLIB_INCLUDE_DIRS}/build) # in case of an out-of-source build
+INCLUDE_DIRECTORIES(common ${ZLIB_INCLUDE_DIRS}) # in case of an out-of-source build
 
 ADD_LIBRARY(ba2tk STATIC ${ba2tk_HDRS} ${ba2tk_SRCS})
 
@@ -40,4 +38,4 @@ SET_TARGET_PROPERTIES(ba2tk PROPERTIES LINK_FLAGS_RELWITHDEBINFO
 ## Installation
 
 INSTALL(TARGETS ba2tk
-        ARCHIVE DESTINATION libs)
+        ARCHIVE DESTINATION lib)

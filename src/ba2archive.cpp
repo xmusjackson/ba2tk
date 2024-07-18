@@ -247,6 +247,66 @@ EErrorCode Archive::extractAll(const char *destination,
   }
 }
 
+EErrorCode Archive::extractFileGeneral(const char *destination, const char *fileName) const {
+  if (m_Files.size() != m_TableNames.size()) {
+    return ERROR_INVALIDDATA;
+  }
+
+  int file_index;
+  for (int i=0; i<m_Files.size(); i++){
+    if (m_TableNames[i] == fileName) {
+      file_index = i;
+      break;
+    }
+  }
+
+  const FileEntry &file = m_Files[file_index];
+
+  std::string out_name = m_TableNames[file_index];
+  std::replace(out_name.begin(), out_name.end(), '\\', '/');
+  std::filesystem::path destinationPath(std::string(destination) + "/" + out_name);
+  destinationPath = destinationPath.make_preferred();
+
+  // ensure all directories exist
+  std::filesystem::create_directories(destinationPath.parent_path());
+  std::fstream outFile;
+  outFile.open(destinationPath.c_str(), fstream::out | fstream::binary);
+  if (outFile.is_open()) {
+    m_File.seekg(file.offset);
+
+    if ((file.packedLen != 0) && (file.unpackedLen != file.packedLen)) {
+      BSAULong unpackedLen = file.unpackedLen;
+      if (!unpackedLen) {
+        unpackedLen = file.unk20;	// ???
+      }
+
+      // TODO Umm, maybe don't read the whole thing in one go? Who knows how large
+      //   this file could be. Do this in chunks like civilized people!
+      std::unique_ptr<BSAUChar[]> sourceBuffer(new BSAUChar[file.packedLen]);
+
+      m_File.read((char*)sourceBuffer.get(), file.packedLen);
+
+      std::unique_ptr<BSAUChar[]> destinationBuffer(new BSAUChar[unpackedLen]);
+
+      uLongf bytesWritten = unpackedLen;
+      int result = uncompress(destinationBuffer.get(), &bytesWritten, sourceBuffer.get(), file.packedLen);
+      if ((result != Z_OK) || (bytesWritten != unpackedLen)) {
+        return ERROR_INVALIDDATA;
+      }
+
+      outFile.write((const char*)destinationBuffer.get(), unpackedLen);
+    }
+    else {
+      std::unique_ptr<BSAUChar[]> destinationBuffer(new BSAUChar[file.unpackedLen]);
+      m_File.read((char*)destinationBuffer.get(), file.unpackedLen);
+      outFile.write((const char*)destinationBuffer.get(), file.unpackedLen);
+    }
+  }
+  else {
+    return ERROR_ACCESSFAILED;
+  }
+  return ERROR_NONE;
+}
 
 EErrorCode Archive::extractAllGeneral(const char *destination) const
 {

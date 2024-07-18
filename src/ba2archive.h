@@ -103,7 +103,7 @@ namespace BA2 {
      *                        may be absolute or relative
      * @return ERROR_NONE on success or an error code
      */
-    EErrorCode extract(const char *outputDirectory) const;
+    EErrorCode extractFileGeneral(const char *destination, const char *fileName) const;
 
     /**
      * extract all files. this is potentially faster than iterating over all files and

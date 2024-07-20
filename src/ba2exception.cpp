@@ -17,9 +17,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 
-#include "ba2exception.h"
+#include "ba2tk/ba2exception.h"
 #include <cstdarg>
-#include <stdio.h>
+#include <cstdio>
 
 #pragma warning( disable : 4996 )
 

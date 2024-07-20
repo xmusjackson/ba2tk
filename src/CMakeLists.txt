@@ -1,41 +1,45 @@
-CMAKE_MINIMUM_REQUIRED (VERSION 3.5)
+cmake_minimum_required (VERSION 3.5)
 
-SET(PROJ_AUTHOR NMM2)
-SET(PROJ_ARCH x86)
+set(PROJ_AUTHOR NMM2)
+set(PROJ_ARCH x86)
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  SET(PROJ_ARCH x64)
+  set(PROJ_ARCH x64)
 endif()
 
 
-SET(ba2tk_SRCS
+set(BA2TK_SRCS
     ba2exception.cpp
     ba2archive.cpp
   )
 
-SET(ba2tk_HDRS
-    errorcodes.h
-    ba2type.h
-    ba2types.h
-    ba2exception.h
-    ba2archive.h
-    dds.h
+set(BA2TK_HDRS
+  ${BA2TK_INCLUDE_DIR}/ba2tk/errorcodes.h
+  ${BA2TK_INCLUDE_DIR}/ba2tk/ba2type.h
+  ${BA2TK_INCLUDE_DIR}/ba2tk/ba2types.h
+  ${BA2TK_INCLUDE_DIR}/ba2tk/ba2exception.h
+  ${BA2TK_INCLUDE_DIR}/ba2tk/ba2archive.h
+  ${BA2TK_INCLUDE_DIR}/ba2tk/dds.h
   )
 
-FIND_PACKAGE(ZLIB REQUIRED)
+find_package(ZLIB REQUIRED)
 
-INCLUDE_DIRECTORIES(common ${ZLIB_INCLUDE_DIRS}) # in case of an out-of-source build
+include_directories(common ${ZLIB_INCLUDE_DIRS} ${BA2TK_INCLUDE_DIR})
 
-ADD_LIBRARY(ba2tk STATIC ${ba2tk_HDRS} ${ba2tk_SRCS})
+add_library(ba2tk STATIC ${BA2TK_SRCS})
 
-IF (NOT "${OPTIMIZE_COMPILE_FLAGS}" STREQUAL "")
-  SET_TARGET_PROPERTIES(ba2tk PROPERTIES COMPILE_FLAGS_RELWITHDEBINFO
+if (NOT "${OPTIMIZE_COMPILE_FLAGS}" STREQUAL "")
+  set_target_properties(ba2tk PROPERTIES COMPILE_FLAGS_RELWITHDEBINFO
                         ${OPTIMIZE_COMPILE_FLAGS})
-ENDIF()
-SET_TARGET_PROPERTIES(ba2tk PROPERTIES LINK_FLAGS_RELWITHDEBINFO
+endif()
+set_target_properties(ba2tk PROPERTIES LINK_FLAGS_RELWITHDEBINFO
                       "/LARGEADDRESSAWARE ${OPTIMIZE_LINK_FLAGS}")
 
 ###############
 ## Installation
 
-INSTALL(TARGETS ba2tk
-        ARCHIVE DESTINATION lib)
+install(TARGETS ba2tk
+  ARCHIVE DESTINATION lib
+  INCLUDES DESTINATION include/ba2tk)
+
+# Install header files
+install(FILES ${BA2TK_HDRS} DESTINATION include/ba2tk)

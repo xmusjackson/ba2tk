@@ -1,9 +1,3 @@
-#include "ba2archive.h"
-#include "ba2exception.h"
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-#include "dds.h"
 #include <cstring>
 #include <fstream>
 #include <filesystem>
@@ -12,8 +6,16 @@
 #include <queue>
 #include <memory>
 #include <mutex>
+
 #include <zlib.h>
-#include <sys/stat.h>
+
+#include "ba2tk/ba2archive.h"
+#include "ba2tk/ba2exception.h"
+#include "ba2tk/dds.h"
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 using std::fstream;
 using namespace std::chrono_literals;
@@ -492,11 +494,8 @@ void Archive::writeHeader(std::fstream &outfile, EType type, BSAULong fileVersio
   writeType<BSAULong>(outfile, nameTableOffset);
 }
 
-
 inline bool fileExists(const std::string &name) {
-  struct stat buffer;
-  return stat(name.c_str(), &buffer) != -1;
+  return std::filesystem::exists(name);
 }
-
 
 } // namespace BA2

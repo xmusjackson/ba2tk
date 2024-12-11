@@ -19,13 +19,22 @@ set(BA2TK_HDRS
   ${BA2TK_INCLUDE_DIR}/ba2tk/ba2exception.h
   ${BA2TK_INCLUDE_DIR}/ba2tk/ba2archive.h
   ${BA2TK_INCLUDE_DIR}/ba2tk/dds.h
+  ${BA2TK_INCLUDE_DIR}/ba2tk/semaphore.h
   )
 
 find_package(ZLIB REQUIRED)
 
 include_directories(common ${ZLIB_INCLUDE_DIRS} ${BA2TK_INCLUDE_DIR})
 
-add_library(ba2tk STATIC ${BA2TK_SRCS})
+if (BUILD_SHARED)
+  add_library(ba2tk SHARED ${BA2TK_SRCS})
+  target_link_libraries(ba2tk 
+    PRIVATE
+        ${ZLIB_LIBRARIES}
+  )
+else()
+  add_library(ba2tk STATIC ${BA2TK_SRCS})
+endif()
 
 if (NOT "${OPTIMIZE_COMPILE_FLAGS}" STREQUAL "")
   set_target_properties(ba2tk PROPERTIES COMPILE_FLAGS_RELWITHDEBINFO
@@ -33,7 +42,6 @@ if (NOT "${OPTIMIZE_COMPILE_FLAGS}" STREQUAL "")
 endif()
 set_target_properties(ba2tk PROPERTIES LINK_FLAGS_RELWITHDEBINFO
                       "/LARGEADDRESSAWARE ${OPTIMIZE_LINK_FLAGS}")
-
 ###############
 ## Installation
 

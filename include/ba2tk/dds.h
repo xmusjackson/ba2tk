@@ -21,6 +21,7 @@
 
 #include "ba2types.h"
 #ifdef _WIN32
+#include <Windows.h>
 #include <dxgiformat.h>
 #else
 #include "wine/basetsd.h"
